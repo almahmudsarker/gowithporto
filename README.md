@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# GoWithPorto
 
-## Getting Started
+GoWithPorto is an AI-powered travel planning and ecommerce platform focused on Porto, Portugal.
+It helps tourists plan trips, book experiences, and buy authentic local souvenirs using AI-driven recommendations.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Project Goals
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Business Goals
+- Provide personalized AI-based travel plans for Porto
+- Monetize AI recommendations (paid unlock)
+- Sell local products and experiences
+- Support multi-language EU tourists
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Technical Goals
+- Scalable fullstack architecture
+- Replaceable services (AI, DB, payments)
+- SEO-friendly frontend
+- Industry-grade software engineering practices
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Stakeholders
 
-To learn more about Next.js, take a look at the following resources:
+- **Tourist User**
+  - Wants fast, clear travel planning
+  - Budget-aware, multi-language support
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Admin / Business Owner**
+  - Manage products, guides, hotels
+  - Track revenue, AI usage, growth
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Future Engineering Team**
+  - Needs clean architecture
+  - Easy onboarding and extensibility
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Core Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- AI Travel Plan Generator (free preview + paid unlock)
+- User Dashboard (AI history, orders)
+- Ecommerce (souvenirs, checkout)
+- Guide & Bike Rental
+- Admin Dashboard
+- Multi-language & theme support
+
+---
+
+## Tech Stack
+
+**Frontend**
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Redux Toolkit
+- GSAP / Framer Motion
+
+**Backend**
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Stripe Payments
+- AI (ChatGPT / Gemini)
+
+---
+
+## Architecture Principles
+
+- Modular & domain-based structure
+- Stateless backend services
+- Replaceable providers (AI, DB, Payments)
+- CI/CD ready
+
+---
+
+## Documentation
+- See **GitHub Wiki** for architecture, folder structure, and decisions.
