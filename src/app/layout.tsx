@@ -3,6 +3,7 @@ import "./globals.css";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
+import AuthProvider from "@/providers/AuthProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
 import ThemeProvider from "@/providers/ThemeProvider";
 
@@ -24,13 +25,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body>
-        <ThemeProvider>
-          <ReduxProvider>
-            <Header />
-            {children}
-            <Footer />
-          </ReduxProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <ReduxProvider>
+              <Header />
+              {children}
+              <Footer />
+            </ReduxProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
