@@ -21,7 +21,9 @@ export default function Header() {
               Login with Google
             </Button>
           )}
-          <Button>Plan Trip</Button>
+          <Button onClick={() => (window.location.href = "/ai")}>
+            Plan Trip
+          </Button>
         </nav>
       </div>
     </header>
