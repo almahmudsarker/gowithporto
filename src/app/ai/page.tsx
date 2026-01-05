@@ -13,6 +13,22 @@ export default function AIFormPage() {
     people: "",
   });
 
+  async function handleSubmit() {
+    const res = await fetch("/api/ai/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+
+    if (data.locked) {
+      alert("Payment required to unlock AI responses");
+    } else {
+      console.log("AI Response:", data.response);
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-16">
       <h1 className="font-serif text-3xl mb-6">Plan your Porto trip with AI</h1>
@@ -41,7 +57,9 @@ export default function AIFormPage() {
           options={["Solo", "Couple", "Family", "Friends"]}
         />
 
-        <Button className="w-full">Generate Plan</Button>
+        <Button className="w-full" onClick={handleSubmit}>
+          Generate Plan
+        </Button>
       </Card>
     </div>
   );
