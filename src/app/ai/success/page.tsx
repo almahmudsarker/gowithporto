@@ -1,10 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function SuccessPage() {
+  const ran = useRef(false);
+
   useEffect(() => {
-    fetch("/api/payments/success", { method: "POST" });
+    if (ran.current) return;
+    ran.current = true;
+
+    fetch("/api/payments/success", { method: "POST" }).then(() => {
+      window.location.assign("/ai");
+    });
   }, []);
 
   return (
@@ -12,7 +19,7 @@ export default function SuccessPage() {
       <h1 className="text-3xl font-serif text-primary">
         Payment Successful 🎉
       </h1>
-      <p className="mt-4">You have unlocked 10 AI travel plans.</p>
+      <p className="mt-4">Redirecting back to planner...</p>
     </div>
   );
 }

@@ -34,10 +34,10 @@ export default function AIFormPage() {
     if (data.locked) {
       await handlePayment();
       return;
-      alert("Payment required to unlock AI responses");
-    } else {
-      console.log("AI Response:", data.response);
     }
+
+    // Always navigate on success
+    window.location.assign("/ai/result");
   }
 
   return (
