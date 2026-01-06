@@ -1,30 +1,33 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { consumeCredit, getUserCredits, markFreeUsed } from "@/lib/creditStore";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session || !session.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { days, budget, people } = body;
+  const email = session.user.email;
+  const user = getUserCredits(email);
 
-  // TEMP USER STATE (later from DB)
-  let userCredits = 0; // change manually for testing
-  let isFirstTime = true; // simulate first request
-
-  // Business rules
-  if (!isFirstTime && userCredits <= 0) {
+  // 🔐 LOCK RULE
+  if (user.usedFree && user.credits <= 0) {
     return NextResponse.json({
       locked: true,
-      message: "Payment required to unlock AI responses",
+      message: "Payment required",
     });
   }
 
-  // MOCK AI RESPONSE (replace later with Gemini/GPT)
+  // 🎁 FREE OR CREDIT
+  if (!user.usedFree) {
+    markFreeUsed(email);
+  } else {
+    consumeCredit(email);
+  }
+
   const aiResponse = {
     summary: "3-day Porto itinerary",
     days: [
@@ -37,5 +40,6 @@ export async function POST(req: Request) {
   return NextResponse.json({
     locked: false,
     response: aiResponse,
+    remainingCredits: user.credits,
   });
 }

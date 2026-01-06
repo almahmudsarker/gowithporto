@@ -13,6 +13,15 @@ export default function AIFormPage() {
     people: "",
   });
 
+  async function handlePayment() {
+    const res = await fetch("/api/payments/checkout", {
+      method: "POST",
+    });
+
+    const data = await res.json();
+    window.location.href = data.url;
+  }
+
   async function handleSubmit() {
     const res = await fetch("/api/ai/preview", {
       method: "POST",
@@ -23,6 +32,8 @@ export default function AIFormPage() {
     const data = await res.json();
 
     if (data.locked) {
+      await handlePayment();
+      return;
       alert("Payment required to unlock AI responses");
     } else {
       console.log("AI Response:", data.response);
