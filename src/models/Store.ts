@@ -4,8 +4,12 @@ const StoreSchema = new Schema(
   {
     name: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    location: String,
-    googleMapUrl: String,
+    ownerEmail: { type: String },
+    location: {
+      lat: Number,
+      lng: Number,
+      address: String,
+    },
     active: { type: Boolean, default: true },
   },
   { timestamps: true }
