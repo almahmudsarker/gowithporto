@@ -4,9 +4,12 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 export default function AIFormPage() {
+  const { data: session } = useSession();
+
   const [form, setForm] = useState({
     days: "",
     budget: "",
@@ -23,20 +26,30 @@ export default function AIFormPage() {
   }
 
   async function handleSubmit() {
+    if (!session) {
+      alert("Please login first to generate a travel plan.");
+      return;
+    }
+
     const res = await fetch("/api/ai/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      alert("Unexpected server response. Please try again.");
+      return;
+    }
 
     if (data.locked) {
       await handlePayment();
       return;
     }
 
-    // Always navigate on success
     window.location.assign("/ai/result");
   }
 
