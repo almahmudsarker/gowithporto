@@ -15,6 +15,8 @@ export async function seedProducts() {
     });
   }
 
+  await Product.deleteMany({}); // Clear existing products
+
   const products = [
     {
       title: "Azulejo Ceramic Tile",
@@ -24,7 +26,7 @@ export async function seedProducts() {
       tags: ["porto", "traditional", "tile"],
       stock: 50,
       storeId: store._id,
-      images: ["/products/azulejo.jpg"],
+      images: ["https://via.placeholder.com/300x200?text=Azulejo"],
     },
     {
       title: "Port Wine Notebook",
@@ -34,7 +36,7 @@ export async function seedProducts() {
       tags: ["wine", "gift"],
       stock: 40,
       storeId: store._id,
-      images: ["/products/notebook.jpg"],
+      images: ["https://via.placeholder.com/300x200?text=Notebook"],
     },
   ];
 

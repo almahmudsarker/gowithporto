@@ -2,6 +2,7 @@
 
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function ShopPage() {
@@ -43,16 +44,18 @@ export default function ShopPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {products.map((p) => (
-          <Card key={p._id} className="space-y-2">
-            <img
-              src={p.images?.[0]}
-              alt={p.title}
-              className="h-40 w-full object-cover rounded"
-            />
-            <h3 className="font-semibold">{p.title}</h3>
-            <p className="text-sm text-gray-500">{p.storeId?.name}</p>
-            <p className="font-bold">€{p.price}</p>
-          </Card>
+          <Link href={`/shop/${p.slug}`} key={p._id}>
+            <Card className="space-y-2">
+              <img
+                src={p.images?.[0]}
+                alt={p.title}
+                className="h-40 w-full object-cover rounded"
+              />
+              <h3 className="font-semibold">{p.title}</h3>
+              <p className="text-sm text-gray-500">{p.storeId?.name}</p>
+              <p className="font-bold">€{p.price}</p>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>
