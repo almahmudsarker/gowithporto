@@ -1,5 +1,6 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { consumeCredit, getUserCredits, markFreeUsed } from "@/lib/creditStore";
+import { connectDB } from "@/lib/mongodb";
+import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -10,11 +11,16 @@ export async function POST() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const email = session.user.email;
-  const user = getUserCredits(email);
+  await connectDB();
+
+  const user = await User.findOne({ email: session.user.email });
+
+  if (!user) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
 
   // 🔐 LOCK RULE
-  if (user.usedFree && user.credits <= 0) {
+  if (user.freeUsed && user.credits <= 0) {
     return NextResponse.json({
       locked: true,
       message: "Payment required",
@@ -22,12 +28,15 @@ export async function POST() {
   }
 
   // 🎁 FREE OR CREDIT
-  if (!user.usedFree) {
-    markFreeUsed(email);
+  if (!user.freeUsed) {
+    user.freeUsed = true;
   } else {
-    consumeCredit(email);
+    user.credits -= 1;
   }
 
+  await user.save();
+
+  // MOCK AI RESPONSE (real AI later)
   const aiResponse = {
     summary: "3-day Porto itinerary",
     days: [
