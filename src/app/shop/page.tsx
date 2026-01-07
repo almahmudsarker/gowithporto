@@ -11,6 +11,7 @@ export default function ShopPage() {
 
   useEffect(() => {
     const params = new URLSearchParams();
+
     if (category) params.append("category", category);
     if (sort) params.append("sort", sort);
 
@@ -31,12 +32,13 @@ export default function ShopPage() {
           <option value="souvenir">Souvenir</option>
         </Select>
 
-        <Select value={sort} onChange={(e) => setSort(e.target.value)}>
-          <option value="">Sort</option>
-          <option value="price-asc">Price ↑</option>
-          <option value="price-desc">Price ↓</option>
-          <option value="name">Name</option>
-        </Select>
+        <select onChange={(e) => setSort(e.target.value)}>
+          <option value="">Default</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="name-asc">Name: A → Z</option>
+          <option value="name-desc">Name: Z → A</option>
+        </select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

@@ -8,15 +8,26 @@ export async function GET(req: Request) {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
+
     const category = searchParams.get("category");
     const sort = searchParams.get("sort");
 
-    let query = Product.find({ active: true });
+    const filter: any = { active: true };
 
-    if (category) query = query.where("category").equals(category);
-    if (sort === "name") query = query.sort({ title: 1 });
+    if (category) {
+      filter.category = category;
+    }
 
-    const products = await query.populate("storeId", "name slug");
+    let sortOption: any = {};
+
+    if (sort === "price-asc") sortOption.price = 1;
+    if (sort === "price-desc") sortOption.price = -1;
+    if (sort === "name-asc") sortOption.title = 1;
+    if (sort === "name-desc") sortOption.title = -1;
+
+    const products = await Product.find(filter)
+      .sort(sortOption)
+      .populate("storeId", "name slug");
 
     return NextResponse.json(products);
   } catch (err) {
