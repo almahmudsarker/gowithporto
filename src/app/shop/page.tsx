@@ -1,14 +1,18 @@
 "use client";
 
+import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
+import { addToCart } from "@/store/slices/cartSlice";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function ShopPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -44,8 +48,9 @@ export default function ShopPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {products.map((p) => (
-          <Link href={`/shop/${p.slug}`} key={p._id}>
-            <Card className="space-y-2">
+          <Card key={p._id} className="space-y-2">
+            {/* ONE Link only */}
+            <Link href={`/shop/${p.slug}`} className="block space-y-2">
               <img
                 src={p.images?.[0]}
                 alt={p.title}
@@ -54,8 +59,26 @@ export default function ShopPage() {
               <h3 className="font-semibold">{p.title}</h3>
               <p className="text-sm text-gray-500">{p.storeId?.name}</p>
               <p className="font-bold">€{p.price}</p>
-            </Card>
-          </Link>
+            </Link>
+
+            {/* Button is NOT inside Link */}
+            <Button
+              className="mt-2 w-full"
+              onClick={() =>
+                dispatch(
+                  addToCart({
+                    productId: p._id,
+                    title: p.title,
+                    price: p.price,
+                    image: p.images?.[0],
+                    quantity: 1,
+                  })
+                )
+              }
+            >
+              Add to Cart
+            </Button>
+          </Card>
         ))}
       </div>
     </div>

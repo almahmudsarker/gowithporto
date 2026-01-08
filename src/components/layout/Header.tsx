@@ -1,31 +1,50 @@
 "use client";
 
-import Button from "@/components/ui/Button";
-import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export default function Header() {
   const { data: session } = useSession();
+  const cartCount = useSelector(
+    (state: RootState) =>
+      state.cart.items.reduce((sum, i) => sum + i.quantity, 0)
+  );
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-black/5">
-      <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-        <h1 className="font-serif text-xl text-primary">GoWithPorto</h1>
+    <header className="border-b px-6 py-4 flex justify-between items-center">
+      <Link href="/" className="font-bold text-xl">
+        GoWithPorto
+      </Link>
 
-        <nav className="flex items-center gap-4">
-          {session ? (
-            <Button variant="secondary" onClick={() => signOut()}>
+      <nav className="flex items-center gap-6">
+        <Link href="/shop">Shop</Link>
+
+        {session && (
+          <>
+            <Link href="/cart" className="relative">
+              🛒 Cart
+              {cartCount > 0 && (
+                <span className="ml-1 text-sm font-bold">
+                  ({cartCount})
+                </span>
+              )}
+            </Link>
+
+            <button
+              onClick={() => signOut()}
+              className="text-sm text-red-600"
+            >
               Logout
-            </Button>
-          ) : (
-            <Button variant="secondary" onClick={() => signIn("google")}>
-              Login with Google
-            </Button>
-          )}
-          <Button onClick={() => (window.location.href = "/ai")}>
-            Plan Trip
-          </Button>
-        </nav>
-      </div>
+            </button>
+          </>
+        )}
+
+        {!session && (
+          <Link href="/api/auth/signin">Login</Link>
+        )}
+      </nav>
     </header>
   );
 }
