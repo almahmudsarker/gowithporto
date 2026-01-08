@@ -1,31 +1,37 @@
 "use client";
 
+import { useAppDispatch } from "@/store";
 import { clearCart } from "@/store/slices/cartSlice";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 
 export default function CheckoutSuccessPage() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   useEffect(() => {
-    // clear redux + localStorage cart
-    dispatch(clearCart());
+    const data = JSON.parse(localStorage.getItem("checkout-data") || "null");
 
-    // redirect after UX delay
-    const t = setTimeout(() => {
-      router.push("/dashboard");
-    }, 2500);
+    if (!data) return;
 
-    return () => clearTimeout(t);
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(() => {
+      dispatch(clearCart());
+      localStorage.removeItem("checkout-data");
+
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 2000);
+    });
   }, [dispatch, router]);
 
   return (
     <div className="p-6 max-w-lg mx-auto text-center">
       <h1 className="text-2xl font-bold mb-4">Payment Successful 🎉</h1>
       <p>Your order has been placed.</p>
-      <p>Redirecting to dashboard…</p>
     </div>
   );
 }

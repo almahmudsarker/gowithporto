@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const AddressSchema = new mongoose.Schema({
+  name: String,
+  street: String,
+  city: String,
+  postalCode: String,
+  country: String,
+});
+
 const OrderSchema = new mongoose.Schema(
   {
     userEmail: String,
@@ -12,6 +20,7 @@ const OrderSchema = new mongoose.Schema(
       },
     ],
     total: Number,
+    address: AddressSchema,
     status: {
       type: String,
       default: "paid",

@@ -1,28 +1,22 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2023-10-16",
+});
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    console.log("CHECKOUT HIT");
 
-    if (!session || !session.user?.email) {
-      console.log("❌ Checkout: Unauthorized");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { items } = await req.json();
-
-    console.log("🛒 Checkout items:", items);
+    const { items, address } = await req.json();
+    console.log("BODY:", { items, address });
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
-    const line_items = items.map((item: any) => ({
+    const lineItems = items.map((item: any) => ({
       price_data: {
         currency: "eur",
         product_data: {
@@ -33,18 +27,22 @@ export async function POST(req: Request) {
       quantity: item.quantity,
     }));
 
-    const checkoutSession = await stripe.checkout.sessions.create({
-      mode: "payment",
+    const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      line_items,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success`,
+      mode: "payment",
+      line_items: lineItems,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
-      customer_email: session.user.email!,
+      metadata: {
+        address: JSON.stringify(address),
+      },
     });
 
-    return NextResponse.json({ url: checkoutSession.url });
-  } catch (err: any) {
-    console.error("❌ Stripe checkout error:", err.message);
-    return NextResponse.json({ error: "Stripe error" }, { status: 500 });
+    console.log("STRIPE SESSION CREATED:", session.id);
+
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    console.error("CHECKOUT ERROR:", err);
+    return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }
 }

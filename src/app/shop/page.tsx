@@ -54,7 +54,7 @@ export default function ShopPage() {
               <img
                 src={p.images?.[0]}
                 alt={p.title}
-                className="h-40 w-full object-cover rounded"
+                className="h-10 w-20 object-cover rounded"
               />
               <h3 className="font-semibold">{p.title}</h3>
               <p className="text-sm text-gray-500">{p.storeId?.name}</p>
