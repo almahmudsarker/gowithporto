@@ -1,35 +1,71 @@
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
+import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+
+import { connectDB } from "@/lib/mongodb";
+import Store from "@/models/Store";
 
 export const authOptions = {
+  session: { strategy: "jwt" },
+
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    CredentialsProvider({
+      name: "StoreOwner",
+      credentials: {
+        storeCode: { label: "Store Code", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+
+      async authorize(credentials) {
+        if (!credentials) return null;
+
+        await connectDB();
+
+        const store = await Store.findOne({
+          storeCode: credentials.storeCode,
+          role: "STORE_OWNER",
+          active: true,
+        });
+
+        if (!store) return null;
+
+        const validPassword = await bcrypt.compare(
+          credentials.password,
+          store.passwordHash
+        );
+
+        if (!validPassword) return null;
+
+        return {
+          id: store._id.toString(),
+          role: "STORE_OWNER",
+          storeId: store._id.toString(),
+          storeName: store.name,
+        };
+      },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
-  secret: process.env.NEXTAUTH_SECRET,
+
   callbacks: {
-    async signIn({ user }) {
-      await connectDB();
-
-      const existingUser = await User.findOne({ email: user.email });
-
-      if (!existingUser) {
-        await User.create({
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        });
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+        token.storeId = user.storeId;
+        token.storeName = user.storeName;
       }
-
-      return true;
+      return token;
     },
+
+    async session({ session, token }) {
+      session.user.role = token.role;
+      session.user.storeId = token.storeId;
+      session.user.storeName = token.storeName;
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/store-owner/login",
   },
 };
 
