@@ -59,6 +59,9 @@ export default function ShopPage() {
               <h3 className="font-semibold">{p.title}</h3>
               <p className="text-sm text-gray-500">{p.storeId?.name}</p>
               <p className="font-bold">€{p.price}</p>
+              <p className="text-sm text-gray-600">
+                Available: {p.quantity || 0}
+              </p>
             </Link>
 
             {/* Button is NOT inside Link */}

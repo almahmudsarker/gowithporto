@@ -8,6 +8,7 @@ const ProductSchema = new Schema(
     price: Number,
     images: [String],
     category: String,
+    quantity: { type: Number, default: 0 },
 
     storeId: {
       type: Schema.Types.ObjectId,

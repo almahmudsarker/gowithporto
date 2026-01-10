@@ -1,15 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
-import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { useSelector } from "react-redux";
 
 export default function Header() {
   const { data: session } = useSession();
-  const cartCount = useSelector(
-    (state: RootState) =>
-      state.cart.items.reduce((sum, i) => sum + i.quantity, 0)
+
+  const isStoreOwner = session?.user?.role === "STORE_OWNER";
+
+  const cartCount = useSelector((state: RootState) =>
+    state.cart.items.reduce((sum, i) => sum + i.quantity, 0)
   );
 
   return (
@@ -21,28 +23,36 @@ export default function Header() {
       <nav className="flex items-center gap-6">
         <Link href="/shop">Shop</Link>
 
-        {session && (
+        {/* USER FEATURES ONLY */}
+        {session && !isStoreOwner && (
           <>
             <Link href="/cart" className="relative">
               🛒 Cart
               {cartCount > 0 && (
-                <span className="ml-1 text-sm font-bold">
-                  ({cartCount})
-                </span>
+                <span className="ml-1 text-sm font-bold">({cartCount})</span>
               )}
             </Link>
 
-            <button
-              onClick={() => signOut()}
-              className="text-sm text-red-600"
-            >
-              Logout
-            </button>
+            <Link href="/ai">AI Planner</Link>
           </>
         )}
 
-        {!session && (
-          <Link href="/api/auth/signin">Login</Link>
+        {/* STORE OWNER LINK */}
+        {session && isStoreOwner && (
+          <Link href="/dashboard/store-owner" className="text-sm font-semibold">
+            Store Dashboard
+          </Link>
+        )}
+
+        {/* AUTH ACTIONS */}
+        {session ? (
+          <button onClick={() => signOut()} className="text-sm text-red-600">
+            Logout
+          </button>
+        ) : (
+          <button onClick={() => signIn("google")} className="text-sm">
+            Login
+          </button>
         )}
       </nav>
     </header>

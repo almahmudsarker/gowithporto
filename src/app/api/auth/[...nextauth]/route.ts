@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 import { connectDB } from "@/lib/mongodb";
 import Store from "@/models/Store";
@@ -9,6 +10,13 @@ export const authOptions = {
   session: { strategy: "jwt" },
 
   providers: [
+    // 👤 USER LOGIN (GOOGLE)
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
+    // 🏪 STORE OWNER LOGIN (CREDENTIALS)
     CredentialsProvider({
       name: "StoreOwner",
       credentials: {
@@ -29,12 +37,12 @@ export const authOptions = {
 
         if (!store) return null;
 
-        const validPassword = await bcrypt.compare(
+        const valid = await bcrypt.compare(
           credentials.password,
           store.passwordHash
         );
 
-        if (!validPassword) return null;
+        if (!valid) return null;
 
         return {
           id: store._id.toString(),
@@ -49,7 +57,7 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        token.role = user.role ?? "USER";
         token.storeId = user.storeId;
         token.storeName = user.storeName;
       }
@@ -63,12 +71,7 @@ export const authOptions = {
       return session;
     },
   },
-
-  pages: {
-    signIn: "/store-owner/login",
-  },
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
