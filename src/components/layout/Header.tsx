@@ -37,10 +37,17 @@ export default function Header() {
           </>
         )}
 
+        {/* USER DASHBOARD LINK */}
+        {session && session.user.role === "USER" && (
+          <Link href="/dashboard" className="text-sm font-semibold">
+            User Dashboard
+          </Link>
+        )}
+
         {/* STORE OWNER LINK */}
         {session && isStoreOwner && (
           <Link href="/dashboard/store-owner" className="text-sm font-semibold">
-            Store Dashboard
+            Store-owner Dashboard
           </Link>
         )}
 

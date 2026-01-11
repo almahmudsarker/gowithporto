@@ -27,11 +27,33 @@ type Order = {
 export default function StoreOwnerOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
+  const fetchOrders = async () => {
+    const res = await fetch("/api/store-owner/orders", {
+      cache: "no-store",
+      credentials: "include", // ✅ FIX
+    });
+
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
+      setOrders(data);
+    } else {
+      setOrders([]); // prevent crash
+    }
+  };
+
   useEffect(() => {
-    fetch("/api/store-owner/orders", { cache: "no-store" })
-      .then((res) => res.json())
-      .then(setOrders);
+    fetchOrders();
   }, []);
+
+  const markAsShipped = async (orderId: string) => {
+    await fetch(`/api/store-owner/orders/${orderId}/ship`, {
+      method: "PUT",
+      credentials: "include", // ✅ FIX
+    });
+
+    await fetchOrders();
+  };
 
   return (
     <div>
@@ -44,13 +66,25 @@ export default function StoreOwnerOrdersPage() {
       <div className="space-y-6">
         {orders.map((order) => (
           <div key={order._id} className="border rounded-lg p-4 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span>
+            <div className="flex justify-between items-center text-sm">
+              <div>
                 <strong>User:</strong> {order.userEmail}
-              </span>
-              <span>
-                <strong>Status:</strong> {order.status}
-              </span>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span>
+                  <strong>Status:</strong> {order.status}
+                </span>
+
+                {order.status === "paid" && (
+                  <button
+                    onClick={() => markAsShipped(order._id)}
+                    className="px-3 py-1 rounded bg-black text-white text-xs"
+                  >
+                    Mark as Shipped
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="text-sm">
