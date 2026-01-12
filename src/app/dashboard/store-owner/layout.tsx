@@ -10,8 +10,13 @@ export default async function Layout({
 }) {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== "STORE_OWNER") {
+  // 🔒 STORE OWNER ROLE GUARD
+  if (!session) {
     redirect("/store-owner/login");
+  }
+
+  if (session.user.role !== "STORE_OWNER") {
+    redirect("/dashboard");
   }
 
   return (
