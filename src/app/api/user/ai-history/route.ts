@@ -1,6 +1,6 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongodb";
-import Transaction from "@/models/Transaction";
+import AIResponse from "@/models/AIResponse";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
@@ -14,14 +14,15 @@ export async function GET() {
   await connectDB();
 
   try {
-    const transactions = await Transaction.find({ userEmail: session.user.email })
-      .sort({ createdAt: -1 });
+    const history = await AIResponse.find({ userEmail: session.user.email })
+      .sort({ createdAt: -1 })
+      .limit(20); // Limit to last 20 for now
 
-    return NextResponse.json(transactions);
+    return NextResponse.json(history);
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    console.error("Error fetching AI history:", error);
     return NextResponse.json(
-      { error: "Failed to fetch transactions" },
+      { error: "Failed to fetch AI history" },
       { status: 500 }
     );
   }
