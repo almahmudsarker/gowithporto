@@ -14,7 +14,10 @@ export async function POST(req: Request) {
 
   await connectDB();
 
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  // 1️⃣ Retrieve Stripe session
+  const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    expand: ["line_items"],
+  });
 
   if (session.payment_status !== "paid") {
     return NextResponse.json(
@@ -23,22 +26,37 @@ export async function POST(req: Request) {
     );
   }
 
-  const items = JSON.parse(session.metadata?.items || "[]");
-  const address = JSON.parse(session.metadata?.address || "{}");
+  // 🔹 Extract address from metadata (OUR app, not Stripe)
+  const address = session.metadata?.address
+    ? JSON.parse(session.metadata.address)
+    : null;
 
-  const total = items.reduce(
-    (sum: number, i: any) => sum + i.price * i.quantity,
-    0
-  );
+  const productIds = session.metadata?.productIds?.split(",") || [];
 
-  await Order.create({
-    userEmail: session.metadata?.userEmail,
+  // 2️⃣ Build order items from Stripe line items
+  const items =
+    session.line_items?.data
+      .filter((li) => li.description !== "Delivery Fee")
+      .map((li, index) => ({
+        productId: productIds[index] || "",
+        title: li.description,
+        price: li.price?.unit_amount ? li.price.unit_amount / 100 : 0,
+        quantity: li.quantity || 1,
+      })) || [];
+
+  // 3️⃣ Calculate total
+  const total = session.amount_total != null ? session.amount_total / 100 : 0;
+
+  // 4️⃣ Create order
+  const order = await Order.create({
+    userEmail: session.customer_details?.email,
     items,
-    address,
     total,
     status: "paid",
-    stripeSessionId: session.id,
+    deliveryType: session.metadata?.deliveryType,
+    deliveryFee: Number(session.metadata?.deliveryFee || 0),
+    address: address || undefined,
   });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, orderId: order._id });
 }

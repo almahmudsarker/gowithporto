@@ -1,37 +1,34 @@
 "use client";
 
-import { useAppDispatch } from "@/store";
 import { clearCart } from "@/store/slices/cartSlice";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 export default function CheckoutSuccessPage() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch();
+
+  const sessionId = searchParams.get("session_id");
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("checkout-data") || "null");
+    if (!sessionId) return;
 
-    if (!data) return;
-
-    fetch("/api/orders", {
+    fetch("/api/orders/confirm", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ sessionId }),
     }).then(() => {
-      dispatch(clearCart());
-      localStorage.removeItem("checkout-data");
-
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
+      dispatch(clearCart()); // ✅ CLEAR CART
+      router.replace("/dashboard"); // ✅ REDIRECT USER
     });
-  }, [dispatch, router]);
+  }, [sessionId, dispatch, router]);
 
   return (
-    <div className="p-6 max-w-lg mx-auto text-center">
-      <h1 className="text-2xl font-bold mb-4">Payment Successful 🎉</h1>
-      <p>Your order has been placed.</p>
+    <div className="p-10 text-center">
+      <h1 className="text-2xl font-bold">Payment Successful 🎉</h1>
+      <p className="mt-4">Finalizing your order…</p>
     </div>
   );
 }

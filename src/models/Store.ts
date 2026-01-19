@@ -10,6 +10,7 @@ export interface IStore extends Document {
   storeCode: string;
   passwordHash: string;
   role: "STORE_OWNER";
+  deliveryFee: number;
 
   createdAt: Date;
   updatedAt: Date;
@@ -26,6 +27,10 @@ const StoreSchema = new Schema<IStore>(
     storeCode: { type: String, required: true, unique: true },
     passwordHash: { type: String, required: true },
     role: { type: String, default: "STORE_OWNER" },
+    deliveryFee: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

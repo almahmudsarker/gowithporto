@@ -1,5 +1,6 @@
 "use client";
 
+import Select from "@/components/ui/Select";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -71,12 +72,17 @@ export default function NewProductPage() {
         onChange={(e) => setForm({ ...form, images: e.target.value })}
       />
 
-      <input
-        placeholder="Category"
-        className="w-full border px-3 py-2"
+      <Select
         value={form.category}
         onChange={(e) => setForm({ ...form, category: e.target.value })}
-      />
+      >
+        <option value="" disabled>
+          Select Category
+        </option>
+        <option value="ceramics">Ceramics</option>
+        <option value="stationery">Stationery</option>
+        <option value="souvenir">Souvenir</option>
+      </Select>
 
       <button className="bg-black text-white px-4 py-2 rounded">Create</button>
     </form>

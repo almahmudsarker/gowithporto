@@ -1,7 +1,7 @@
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
-import Footer from "@/components/layout/Footer";
+import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import Header from "@/components/layout/Header";
 import AuthProvider from "@/providers/AuthProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
@@ -34,7 +34,7 @@ export default function RootLayout({
             <ReduxProvider>
               <Header />
               {children}
-              <Footer />
+              <ConditionalFooter />
             </ReduxProvider>
           </ThemeProvider>
         </AuthProvider>

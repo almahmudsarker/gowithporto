@@ -47,11 +47,18 @@ export default async function DashboardPage() {
           <p className="font-semibold">Total: €{order.total}</p>
           <p>Status: {order.status}</p>
 
-          <div className="text-sm text-gray-600">
-            <p>
-              {order.address.name}, {order.address.street}, {order.address.city}
-            </p>
-          </div>
+          {order.address ? (
+            <div className="text-sm text-gray-600">
+              <p>
+                {order.address.name}, {order.address.street},{" "}
+                {order.address.city}
+              </p>
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500 italic">
+              Pickup from store
+            </div>
+          )}
 
           <ul className="list-disc ml-6">
             {order.items.map((i: any, idx: number) => (

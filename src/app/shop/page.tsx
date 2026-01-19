@@ -4,15 +4,24 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 import { addToCart } from "@/store/slices/cartSlice";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 export default function ShopPage() {
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("");
   const dispatch = useDispatch();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then(setCategories);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -32,9 +41,11 @@ export default function ShopPage() {
       <div className="flex gap-4">
         <Select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">All Categories</option>
-          <option value="ceramics">Ceramics</option>
-          <option value="stationery">Stationery</option>
-          <option value="souvenir">Souvenir</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c.charAt(0).toUpperCase() + c.slice(1)}
+            </option>
+          ))}
         </Select>
 
         <select onChange={(e) => setSort(e.target.value)}>
@@ -65,22 +76,24 @@ export default function ShopPage() {
             </Link>
 
             {/* Button is NOT inside Link */}
-            <Button
-              className="mt-2 w-full"
-              onClick={() =>
-                dispatch(
-                  addToCart({
-                    productId: p._id,
-                    title: p.title,
-                    price: p.price,
-                    image: p.images?.[0],
-                    quantity: 1,
-                  })
-                )
-              }
-            >
-              Add to Cart
-            </Button>
+            {session?.user.role !== "STORE_OWNER" && (
+              <Button
+                className="mt-2 w-full"
+                onClick={() =>
+                  dispatch(
+                    addToCart({
+                      productId: p._id,
+                      title: p.title,
+                      price: p.price,
+                      image: p.images?.[0],
+                      quantity: 1,
+                    })
+                  )
+                }
+              >
+                Add to Cart
+              </Button>
+            )}
           </Card>
         ))}
       </div>

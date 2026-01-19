@@ -1,48 +1,76 @@
+import { connectDB } from "@/lib/mongodb";
+import Product from "@/models/Product";
+import Store from "@/models/Store";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
-  try {
-    console.log("CHECKOUT HIT");
+  const { items, deliveryType, address } = await req.json();
 
-    const { items, address } = await req.json();
-    console.log("BODY:", { items, address });
+  await connectDB();
 
-    if (!items || items.length === 0) {
-      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
-    }
+  // Fetch products
+  const products = await Product.find({
+    _id: { $in: items.map((i: any) => i.productId) },
+  });
 
-    const lineItems = items.map((item: any) => ({
-      price_data: {
-        currency: "eur",
-        product_data: {
-          name: item.title,
+  const storeId = products[0].storeId;
+  const store = await Store.findById(storeId);
+
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
+    products.map((product) => {
+      const cartItem = items.find(
+        (i: any) => i.productId === product._id.toString()
+      );
+
+      return {
+        quantity: cartItem.quantity,
+        price_data: {
+          currency: "eur",
+          unit_amount: Math.round(product.price * 100),
+          product_data: {
+            name: product.title,
+          },
         },
-        unit_amount: Math.round(item.price * 100),
-      },
-      quantity: item.quantity,
-    }));
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "payment",
-      line_items: lineItems,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
-      metadata: {
-        address: JSON.stringify(address),
-      },
+      };
     });
 
-    console.log("STRIPE SESSION CREATED:", session.id);
+  let deliveryFee = 0;
 
-    return NextResponse.json({ url: session.url });
-  } catch (err) {
-    console.error("CHECKOUT ERROR:", err);
-    return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
+  if (deliveryType === "delivery") {
+    deliveryFee = Number(store.deliveryFee || 0);
+
+    if (deliveryFee > 0) {
+      lineItems.push({
+        quantity: 1,
+        price_data: {
+          currency: "eur",
+          unit_amount: Math.round(deliveryFee * 100),
+          product_data: {
+            name: "Delivery Fee",
+          },
+        },
+      });
+    }
   }
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    mode: "payment",
+    line_items: lineItems,
+
+    success_url: `${process.env.NEXTAUTH_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXTAUTH_URL}/checkout/cancel`,
+
+    metadata: {
+      deliveryType,
+      deliveryFee,
+      address: address ? JSON.stringify(address) : "",
+      productIds: products.map((p) => p._id.toString()).join(","),
+    },
+  });
+
+  return NextResponse.json({ url: session.url });
 }
