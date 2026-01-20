@@ -11,6 +11,7 @@ const AddressSchema = new mongoose.Schema({
 const OrderSchema = new mongoose.Schema(
   {
     userEmail: String,
+    storeId: { type: mongoose.Schema.Types.ObjectId, ref: "Store" },
     items: [
       {
         productId: mongoose.Schema.Types.ObjectId,

@@ -69,6 +69,7 @@ export async function POST(req: Request) {
       deliveryFee,
       address: address ? JSON.stringify(address) : "",
       productIds: products.map((p) => p._id.toString()).join(","),
+      storeId: storeId.toString(),
     },
   });
 

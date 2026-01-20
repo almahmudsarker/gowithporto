@@ -14,6 +14,11 @@ export default function Header() {
     state.cart.items.reduce((sum, i) => sum + i.quantity, 0)
   );
 
+  // Hide header for Admin
+  if (session?.user?.role === "ADMIN") {
+    return null;
+  }
+
   return (
     <header className="border-b px-6 py-4 flex justify-between items-center">
       <Link href="/" className="font-bold text-xl">

@@ -56,6 +56,7 @@ export async function POST(req: Request) {
     deliveryType: session.metadata?.deliveryType,
     deliveryFee: Number(session.metadata?.deliveryFee || 0),
     address: address || undefined,
+    storeId: session.metadata?.storeId,
   });
 
   return NextResponse.json({ success: true, orderId: order._id });
