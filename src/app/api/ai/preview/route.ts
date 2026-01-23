@@ -1,9 +1,11 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import AIResponse from "@/models/AIResponse";
 import User from "@/models/User";
+import { generateAIResponse } from "@/services/ai";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+
 
 export async function POST(req: Request) {
   try {
@@ -39,20 +41,23 @@ export async function POST(req: Request) {
     } else {
       user.credits -= 1;
     }
-
+  // Credit logic
     await user.save();
 
-    const aiResponse = {
-      summary: "3-day Porto itinerary",
-      days: [
-        { day: 1, title: "Historic Center" },
-        { day: 2, title: "Douro Valley" },
-        { day: 3, title: "Foz do Douro" },
-      ],
-    };
+    // 🔮 REAL AI RESPONSE (Gemini)
+const aiResponse = await generateAIResponse({
+  systemPrompt:
+    "You are a travel assistant for Porto. Generate a structured, helpful itinerary.",
+  userInput: {
+    days,
+    budget,
+    people,
+  },
+});
+
 
     // ✅ SAVE AI RESPONSE
-    await AIResponse.create({
+    const savedResponse = await AIResponse.create({
       userEmail: session.user.email,
       prompt: { days, budget, people },
       response: aiResponse,
@@ -61,6 +66,7 @@ export async function POST(req: Request) {
     // ✅ ALWAYS return JSON
     return NextResponse.json({
       locked: false,
+      id: savedResponse._id,
       response: aiResponse,
       remainingCredits: user.credits,
     });

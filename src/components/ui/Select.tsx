@@ -1,16 +1,38 @@
 import { cn } from "@/utils/cn";
 
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  label?: string;
+  options?: string[];
+}
+
 export default function Select({
   className,
+  label,
+  options,
+  children,
   ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement>) {
+}: SelectProps) {
   return (
-    <select
-      className={cn(
-        "w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
-        className
+    <div className="space-y-1">
+      {label && (
+        <label className="block text-sm font-medium text-black/60">
+          {label}
+        </label>
       )}
-      {...props}
-    />
+      <select
+        className={cn(
+          "w-full rounded-xl border border-black/10 bg-white px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
+          className
+        )}
+        {...props}
+      >
+        {options?.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+        {children}
+      </select>
+    </div>
   );
 }

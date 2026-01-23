@@ -2,10 +2,10 @@
 
 import { clearCart } from "@/store/slices/cartSlice";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-export default function CheckoutSuccessPage() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
@@ -20,8 +20,8 @@ export default function CheckoutSuccessPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId }),
     }).then(() => {
-      dispatch(clearCart()); // ✅ CLEAR CART
-      router.replace("/dashboard"); // ✅ REDIRECT USER
+      dispatch(clearCart());
+      router.replace("/dashboard");
     });
   }, [sessionId, dispatch, router]);
 
@@ -30,5 +30,13 @@ export default function CheckoutSuccessPage() {
       <h1 className="text-2xl font-bold">Payment Successful 🎉</h1>
       <p className="mt-4">Finalizing your order…</p>
     </div>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<p className="p-10 text-center">Loading payment status...</p>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

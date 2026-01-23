@@ -1,4 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import AIResponse from "@/models/AIResponse";
 import { getServerSession } from "next-auth";

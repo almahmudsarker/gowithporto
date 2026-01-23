@@ -1,8 +1,8 @@
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function GET(req: Request) {
   try {

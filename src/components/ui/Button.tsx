@@ -1,7 +1,7 @@
 import { cn } from "@/utils/cn";
 import * as React from "react";
 
-type ButtonVariant = "primary" | "secondary";
+type ButtonVariant = "primary" | "secondary" | "outline";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -19,6 +19,8 @@ export default function Button({
     primary: "bg-primary text-white hover:scale-[1.02] hover:shadow-md",
     secondary:
       "bg-white text-primary border border-primary hover:bg-primary hover:text-white",
+    outline:
+      "bg-transparent text-gray-600 border border-gray-300 hover:bg-gray-50",
   };
 
   return (

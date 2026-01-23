@@ -1,8 +1,8 @@
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import GlobalConfig from "@/models/GlobalConfig";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
 
 const AI_CONFIG_KEY = "AI_SETTINGS";
 

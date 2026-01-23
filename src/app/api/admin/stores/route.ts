@@ -1,9 +1,9 @@
+import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Store from "@/models/Store";
 import bcrypt from "bcryptjs";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../../auth/[...nextauth]/route";
 
 // GET: List all stores
 export async function GET() {

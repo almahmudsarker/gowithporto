@@ -1,4 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -50,24 +50,24 @@ export default async function AIHistoryPage() {
                   {JSON.stringify(item.prompt, null, 2)}
                 </pre>
               </div>
-              
+
               <div>
                 <h3 className="font-bold text-sm text-gray-700 uppercase mb-2">AI Response</h3>
-                 <div className="p-4 bg-blue-50 border border-blue-100 rounded text-sm text-gray-800 space-y-2">
-                    {/* Basic rendering of the response object nicely */}
-                    {Object.entries(item.response).map(([key, value]) => (
-                        <div key={key}>
-                            <span className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                            <div className="ml-2 mt-1">
-                                {typeof value === 'object' ? (
-                                    <pre className="whitespace-pre-wrap">{JSON.stringify(value, null, 2)}</pre>
-                                ) : (
-                                    <p>{String(value)}</p>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                 </div>
+                <div className="p-4 bg-blue-50 border border-blue-100 rounded text-sm text-gray-800 space-y-2">
+                  {/* Basic rendering of the response object nicely */}
+                  {Object.entries(item.response).map(([key, value]) => (
+                    <div key={key}>
+                      <span className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                      <div className="ml-2 mt-1">
+                        {typeof value === 'object' ? (
+                          <pre className="whitespace-pre-wrap">{JSON.stringify(value, null, 2)}</pre>
+                        ) : (
+                          <p>{String(value)}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </details>

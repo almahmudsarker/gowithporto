@@ -28,11 +28,10 @@ export default function DashboardLayout({
               <Link
                 key={tab.href}
                 href={tab.href}
-                className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
-                  isActive
+                className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${isActive
                     ? "border-black text-black"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                  }`}
               >
                 {tab.name}
               </Link>

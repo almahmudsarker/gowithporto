@@ -17,13 +17,19 @@ export default function AIFormPage() {
   });
 
   async function handlePayment() {
-    const res = await fetch("/api/payments/checkout", {
+    const res = await fetch("/api/payments/ai-credits", {
       method: "POST",
     });
+
+    if (!res.ok) {
+      alert("Unable to start payment. Please try again.");
+      return;
+    }
 
     const data = await res.json();
     window.location.href = data.url;
   }
+
 
   async function handleSubmit() {
     if (!session) {
@@ -50,7 +56,7 @@ export default function AIFormPage() {
       return;
     }
 
-    window.location.assign("/ai/result");
+    window.location.assign(`/ai/result?id=${data.id}`);
   }
 
   return (
