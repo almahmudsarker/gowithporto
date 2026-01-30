@@ -4,6 +4,7 @@ import "./globals.css";
 import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import Header from "@/components/layout/Header";
 import AuthProvider from "@/providers/AuthProvider";
+import { LanguageProvider } from "@/providers/LanguageProvider";
 import ReduxProvider from "@/providers/ReduxProvider";
 import ThemeProvider from "@/providers/ThemeProvider";
 
@@ -32,9 +33,11 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider>
             <ReduxProvider>
-              <Header />
-              {children}
-              <ConditionalFooter />
+              <LanguageProvider>
+                <Header />
+                {children}
+                <ConditionalFooter />
+              </LanguageProvider>
             </ReduxProvider>
           </ThemeProvider>
         </AuthProvider>
