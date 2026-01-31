@@ -43,7 +43,7 @@ export default function EditProductPage() {
       return;
     }
 
-    router.push("/dashboard/store-owner/products");
+    router.push("/store-owner/products");
   };
 
   return (

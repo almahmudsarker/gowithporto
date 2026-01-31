@@ -15,7 +15,7 @@ export default function StoreOwnerLoginPage() {
       storeCode,
       password,
       redirect: true,
-      callbackUrl: "/dashboard/store-owner",
+      callbackUrl: "/store-owner",
     });
 
     if (res?.error) {

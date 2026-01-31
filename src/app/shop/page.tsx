@@ -65,7 +65,7 @@ export default function ShopPage() {
               <img
                 src={p.images?.[0]}
                 alt={p.title}
-                className="h-10 w-20 object-cover rounded"
+                className="h-48 w-full object-cover rounded"
               />
               <h3 className="font-semibold">{p.title}</h3>
               <p className="text-sm text-gray-500">{p.storeId?.name}</p>
@@ -87,7 +87,7 @@ export default function ShopPage() {
                       price: p.price,
                       image: p.images?.[0],
                       quantity: 1,
-                    })
+                    }),
                   )
                 }
               >

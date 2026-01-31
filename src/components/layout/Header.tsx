@@ -11,7 +11,7 @@ export default function Header() {
   const isStoreOwner = session?.user?.role === "STORE_OWNER";
 
   const cartCount = useSelector((state: RootState) =>
-    state.cart.items.reduce((sum, i) => sum + i.quantity, 0)
+    state.cart.items.reduce((sum, i) => sum + i.quantity, 0),
   );
 
   // Hide header for Admin
@@ -51,7 +51,7 @@ export default function Header() {
 
         {/* STORE OWNER LINK */}
         {session && isStoreOwner && (
-          <Link href="/dashboard/store-owner" className="text-sm font-semibold">
+          <Link href="/store-owner" className="text-sm font-semibold">
             Store-owner Dashboard
           </Link>
         )}
