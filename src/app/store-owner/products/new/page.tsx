@@ -28,7 +28,7 @@ export default function NewProductPage() {
       }),
     });
 
-    router.push("/dashboard/store-owner/products");
+    router.push("/store-owner/products");
   };
 
   return (

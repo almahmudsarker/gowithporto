@@ -5,11 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/dashboard/store-owner", label: "Dashboard" },
-  { href: "/dashboard/store-owner/products", label: "Products" },
-  { href: "/dashboard/store-owner/orders", label: "Orders" },
-  { href: "/dashboard/store-owner/payouts", label: "Payouts" },
-  { href: "/dashboard/store-owner/settings", label: "Settings" },
+  { href: "/store-owner", label: "Dashboard" },
+  { href: "/store-owner/products", label: "Products" },
+  { href: "/store-owner/orders", label: "Orders" },
+  { href: "/store-owner/payouts", label: "Payouts" },
+  { href: "/store-owner/settings", label: "Settings" },
 ];
 
 export default function StoreOwnerSidebar() {
@@ -26,7 +26,7 @@ export default function StoreOwnerSidebar() {
             href={l.href}
             className={cn(
               "block px-3 py-2 rounded text-sm",
-              pathname === l.href ? "bg-black text-white" : "hover:bg-muted"
+              pathname === l.href ? "bg-black text-white" : "hover:bg-muted",
             )}
           >
             {l.label}

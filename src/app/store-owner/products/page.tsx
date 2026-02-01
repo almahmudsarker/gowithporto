@@ -39,7 +39,7 @@ export default function StoreOwnerProductsPage() {
       <div className="flex justify-between mb-4">
         <h1 className="text-2xl font-semibold">Products</h1>
         <Link
-          href="/dashboard/store-owner/products/new"
+          href="/store-owner/products/new"
           className="bg-black text-white px-4 py-2 rounded"
         >
           Add Product
@@ -65,7 +65,7 @@ export default function StoreOwnerProductsPage() {
               <td className="p-2">{p.active ? "Yes" : "No"}</td>
               <td className="p-2 space-x-3">
                 <Link
-                  href={`/dashboard/store-owner/products/${p._id}/edit`}
+                  href={`/store-owner/products/${p._id}/edit`}
                   className="underline"
                 >
                   Edit

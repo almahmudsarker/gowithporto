@@ -9,12 +9,15 @@ import { useState } from "react";
 
 export default function AIFormPage() {
   const { data: session } = useSession();
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     days: "",
     budget: "",
     people: "",
   });
+
+  const isFormValid = form.days && form.budget && form.people;
 
   async function handlePayment() {
     const res = await fetch("/api/payments/ai-credits", {
@@ -23,6 +26,7 @@ export default function AIFormPage() {
 
     if (!res.ok) {
       alert("Unable to start payment. Please try again.");
+      setLoading(false);
       return;
     }
 
@@ -37,26 +41,41 @@ export default function AIFormPage() {
       return;
     }
 
-    const res = await fetch("/api/ai/preview", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    if (!isFormValid) return;
 
-    let data;
+    setLoading(true);
+
     try {
-      data = await res.json();
-    } catch {
-      alert("Unexpected server response. Please try again.");
-      return;
-    }
+      const res = await fetch("/api/ai/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    if (data.locked) {
-      await handlePayment();
-      return;
-    }
+      const data = await res.json();
 
-    window.location.assign(`/ai/result?id=${data.id}`);
+      if (!res.ok || data.error) {
+        alert(data.error || "Failed to generate plan. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      if (data.locked) {
+        await handlePayment();
+        return;
+      }
+
+      if (data.id) {
+        window.location.assign(`/ai/result?id=${data.id}`);
+      } else {
+        throw new Error("Invalid response from server");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -70,6 +89,10 @@ export default function AIFormPage() {
           label="Number of days"
           type="number"
           value={form.days}
+          placeholder="Enter number of days"
+          min={1}
+          max={30}
+          required
           onChange={(e) => setForm({ ...form, days: e.target.value })}
         />
 
@@ -78,6 +101,7 @@ export default function AIFormPage() {
           value={form.budget}
           onChange={(e) => setForm({ ...form, budget: e.target.value })}
           options={["Cheap", "Medium", "Luxury"]}
+          placeholder="Select budget"
         />
 
         <Select
@@ -85,10 +109,15 @@ export default function AIFormPage() {
           value={form.people}
           onChange={(e) => setForm({ ...form, people: e.target.value })}
           options={["Solo", "Couple", "Family", "Friends"]}
+          placeholder="Select group size"
         />
 
-        <Button className="w-full" onClick={handleSubmit}>
-          Generate Plan
+        <Button
+          className="w-full"
+          onClick={handleSubmit}
+          disabled={!isFormValid || loading}
+        >
+          {loading ? "Generating Plan..." : "Generate Plan"}
         </Button>
       </Card>
     </div>

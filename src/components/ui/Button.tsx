@@ -13,17 +13,26 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/30";
+    "inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-medium transition-all duration-300";
 
   const variants: Record<ButtonVariant, string> = {
-    primary: "bg-primary text-white hover:scale-[1.02] hover:shadow-md",
-    secondary:
-      "bg-white text-primary border border-primary hover:bg-primary hover:text-white",
+    primary: "bg-[#57BAEA] text-white hover:scale-[1.02] hover:shadow-md",
+    secondary: "bg-[#AABBCC] text-[#1a1a1a] hover:scale-[1.02] hover:shadow-md",
     outline:
-      "bg-transparent text-gray-600 border border-gray-300 hover:bg-gray-50",
+      "bg-transparent text-gray-100 border border-gray-600 hover:bg-gray-50",
   };
 
+  const { disabled } = props;
   return (
-    <button className={cn(base, variants[variant], className)} {...props} />
+    <button
+      className={cn(
+        base,
+        variants[variant],
+        disabled && "opacity-50 cursor-not-allowed pointer-events-none",
+        className,
+      )}
+      disabled={disabled}
+      {...props}
+    />
   );
 }
