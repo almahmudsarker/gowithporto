@@ -22,7 +22,17 @@ export default function Button({
       "bg-transparent text-gray-100 border border-gray-600 hover:bg-gray-50",
   };
 
+  const { disabled } = props;
   return (
-    <button className={cn(base, variants[variant], className)} {...props} />
+    <button
+      className={cn(
+        base,
+        variants[variant],
+        disabled && "opacity-50 cursor-not-allowed pointer-events-none",
+        className,
+      )}
+      disabled={disabled}
+      {...props}
+    />
   );
 }

@@ -11,15 +11,16 @@ export default function StoreOwnerLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await signIn("credentials", {
+    const res = await signIn("store-owner-login", {
       storeCode,
       password,
-      redirect: true,
-      callbackUrl: "/store-owner",
+      redirect: false,
     });
 
     if (res?.error) {
       setError("Invalid store code or password");
+    } else {
+      window.location.href = "/store-owner";
     }
   };
 

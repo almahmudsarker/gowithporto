@@ -118,9 +118,15 @@ export default function StoreOwnerOrdersPage() {
             <div className="text-sm text-muted-foreground">
               <strong>Delivery address:</strong>
               <div>
-                {order.address.name}, {order.address.street},{" "}
-                {order.address.city}, {order.address.postalCode},{" "}
-                {order.address.country}
+                {order.address ? (
+                  <>
+                    {order.address.name}, {order.address.street},{" "}
+                    {order.address.city}, {order.address.postalCode},{" "}
+                    {order.address.country}
+                  </>
+                ) : (
+                  <span className="text-red-500">No address provided</span>
+                )}
               </div>
             </div>
           </div>

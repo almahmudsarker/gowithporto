@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 async function getAIHistory() {
@@ -31,46 +32,37 @@ export default async function AIHistoryPage() {
 
       {history.length === 0 && <p>No AI history found.</p>}
 
-      <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-2">
         {history.map((item: any) => (
-          <details key={item._id} className="group border rounded-lg bg-white overflow-hidden shadow-sm">
-            <summary className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-50 bg-gray-50 transition-colors list-none">
+          <Link
+            key={item._id}
+            href={`/ai/result?id=${item._id}`}
+            className="block p-5 border rounded-xl hover:shadow-md hover:border-blue-300 transition-all bg-white group"
+          >
+            <div className="flex justify-between items-start mb-3">
               <div>
-                <p className="font-semibold text-lg">Plan generated on {new Date(item.createdAt).toLocaleDateString()}</p>
-                <p className="text-xs text-gray-500 mt-1">{item._id}</p>
+                <h3 className="font-semibold text-lg text-gray-800 group-hover:text-blue-600 transition-colors">
+                  Trip to Porto
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </p>
               </div>
-              <span className="text-gray-400 group-open:rotate-180 transition-transform">
-                ▼
-              </span>
-            </summary>
-            <div className="p-4 border-t border-gray-100 space-y-4">
-              <div>
-                <h3 className="font-bold text-sm text-gray-700 uppercase mb-2">My Input</h3>
-                <pre className="p-3 bg-gray-100 rounded text-sm whitespace-pre-wrap font-sans text-gray-700">
-                  {JSON.stringify(item.prompt, null, 2)}
-                </pre>
-              </div>
-
-              <div>
-                <h3 className="font-bold text-sm text-gray-700 uppercase mb-2">AI Response</h3>
-                <div className="p-4 bg-blue-50 border border-blue-100 rounded text-sm text-gray-800 space-y-2">
-                  {/* Basic rendering of the response object nicely */}
-                  {Object.entries(item.response).map(([key, value]) => (
-                    <div key={key}>
-                      <span className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                      <div className="ml-2 mt-1">
-                        {typeof value === 'object' ? (
-                          <pre className="whitespace-pre-wrap">{JSON.stringify(value, null, 2)}</pre>
-                        ) : (
-                          <p>{String(value)}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <span className="text-blue-500 text-sm font-medium">View Plan &rarr;</span>
             </div>
-          </details>
+
+            <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+              <span className="px-2 py-1 bg-gray-100 rounded-md border">
+                {item.prompt.days} Days
+              </span>
+              <span className="px-2 py-1 bg-gray-100 rounded-md border">
+                {item.prompt.budget}
+              </span>
+              <span className="px-2 py-1 bg-gray-100 rounded-md border">
+                {item.prompt.people}
+              </span>
+            </div>
+          </Link>
         ))}
       </div>
     </div>

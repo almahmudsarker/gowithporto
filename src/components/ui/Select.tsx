@@ -3,12 +3,14 @@ import { cn } from "@/utils/cn";
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   options?: string[];
+  placeholder?: string;
 }
 
 export default function Select({
   className,
   label,
   options,
+  placeholder,
   children,
   ...props
 }: SelectProps) {
@@ -26,6 +28,11 @@ export default function Select({
         )}
         {...props}
       >
+        {placeholder && (
+          <option value="" disabled>
+            {placeholder}
+          </option>
+        )}
         {options?.map((option) => (
           <option key={option} value={option}>
             {option}
