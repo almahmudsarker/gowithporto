@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
 
     const category = searchParams.get("category");
+    const storeId = searchParams.get("storeId");
     const sort = searchParams.get("sort");
     const lang = searchParams.get("lang") || "en";
 
@@ -20,6 +21,10 @@ export async function GET(req: Request) {
 
     if (category) {
       filter.category = category;
+    }
+
+    if (storeId) {
+      filter.storeId = storeId;
     }
 
     let sortOption: any = {};

@@ -23,6 +23,7 @@ const links = [
   { href: "/store-owner", label: "Dashboard", icon: Squares2X2Icon, exact: true },
   { href: "/store-owner/products", label: "Products", icon: CubeIcon },
   { href: "/store-owner/orders", label: "Orders", icon: ShoppingBagIcon },
+  { href: "/store-owner/profile", label: "Shop Profile", icon: BuildingStorefrontIcon },
 ];
 
 const comingSoon = [{ label: "Settings", icon: Cog6ToothIcon }];

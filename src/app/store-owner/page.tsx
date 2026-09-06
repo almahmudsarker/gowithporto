@@ -450,10 +450,10 @@ export default function StoreOwnerDashboard() {
                 }
               />
               <QuickAction
-                onClick={() => toast("Coming soon!")}
+                href="/store-owner/profile"
                 icon={Cog6ToothIcon}
-                title="Store Settings"
-                subtitle="Manage your store information"
+                title="Shop Profile"
+                subtitle="Add photos & tell your story"
               />
             </div>
           </div>

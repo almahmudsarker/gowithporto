@@ -43,7 +43,7 @@ type Product = {
   category?: string;
   quantity?: number;
   variants?: Variant[];
-  storeId?: { name?: string };
+  storeId?: { name?: string; slug?: string };
 };
 
 export default function ProductDetailView({ product }: { product: Product }) {
@@ -113,7 +113,17 @@ export default function ProductDetailView({ product }: { product: Product }) {
             </h1>
             {product.storeId?.name && (
               <p className="text-sm text-gray-500">
-                Sold by {product.storeId.name}
+                Sold by{" "}
+                {product.storeId.slug ? (
+                  <Link
+                    href={`/stores/${product.storeId.slug}`}
+                    className="font-medium text-[#2c6e9b] hover:underline"
+                  >
+                    {product.storeId.name}
+                  </Link>
+                ) : (
+                  product.storeId.name
+                )}
               </p>
             )}
             {product.description && (
@@ -229,7 +239,17 @@ export default function ProductDetailView({ product }: { product: Product }) {
               </h1>
               {product.storeId?.name && (
                 <p className="text-sm text-gray-500">
-                  Sold by {product.storeId.name}
+                  Sold by{" "}
+                  {product.storeId.slug ? (
+                    <Link
+                      href={`/stores/${product.storeId.slug}`}
+                      className="font-medium text-[#2c6e9b] hover:underline"
+                    >
+                      {product.storeId.name}
+                    </Link>
+                  ) : (
+                    product.storeId.name
+                  )}
                 </p>
               )}
             </div>

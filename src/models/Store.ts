@@ -8,6 +8,13 @@ export interface IStore extends Document {
   email?: string;
   phone?: string;
 
+  // 🏪 Public shop profile (shown to customers to build trust)
+  tagline?: string;
+  description?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  images?: string[];
+
   // 🔐 Store Owner Auth
   storeCode: string;
   passwordHash: string;
@@ -40,6 +47,13 @@ const StoreSchema = new Schema<IStore>(
     active: { type: Boolean, default: true },
     email: { type: String },
     phone: { type: String },
+
+    // 🏪 Public shop profile (shown to customers to build trust)
+    tagline: { type: String },
+    description: { type: String },
+    logoUrl: { type: String },
+    bannerUrl: { type: String },
+    images: { type: [String], default: [] },
 
     // 🔐 Store Owner Auth
     storeCode: { type: String, required: true, unique: true },

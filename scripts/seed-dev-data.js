@@ -30,6 +30,11 @@ async function main() {
           slug: { type: String, unique: true },
           location: String,
           active: { type: Boolean, default: true },
+          tagline: String,
+          description: String,
+          logoUrl: String,
+          bannerUrl: String,
+          images: [String],
           storeCode: { type: String, unique: true },
           passwordHash: String,
           role: { type: String, default: "STORE_OWNER" },
@@ -131,20 +136,71 @@ async function main() {
 
   const PLACEHOLDER_IMG = "https://placehold.co/800x600/1a4d3e/ffffff?text=Dev+Seed";
 
+  // Random-but-stable stock photography (Lorem Picsum) for shop profile previews —
+  // real-looking photos rather than colored placeholder boxes, seeded per-shop so
+  // re-running this script keeps showing the same images instead of reshuffling.
+  const picsum = (seed, w, h) => `https://picsum.photos/seed/${seed}/${w}/${h}`;
+
+  // Identity/auth fields only ever get set on first insert — re-running this
+  // script must never clobber a name/location that's since been hand-edited.
   const store = await Store.findOneAndUpdate(
     { slug: "dev-test-store" },
     {
-      name: "Dev Test Store",
-      slug: "dev-test-store",
-      location: "Ribeira, Porto",
-      storeCode: "DEV-TEST",
-      passwordHash: await bcrypt.hash("devtest123", 10),
-      fulfillmentPinHash: await bcrypt.hash("1234", 10),
-      deliveryFee: 3.5,
+      $setOnInsert: {
+        name: "Dev Test Store",
+        slug: "dev-test-store",
+        location: "Ribeira, Porto",
+        storeCode: "DEV-TEST",
+        passwordHash: await bcrypt.hash("devtest123", 10),
+        fulfillmentPinHash: await bcrypt.hash("1234", 10),
+        deliveryFee: 3.5,
+      },
+      $set: {
+        tagline: "Handpicked Porto souvenirs, made by local artisans.",
+        description:
+          "We've been sourcing authentic Porto souvenirs and treats since 2015 — everything from hand-painted azulejo tiles to small-batch port wine from Douro producers we know personally. Stop by our stall near the Ribeira waterfront and say hello.",
+        logoUrl: picsum("dev-test-store-logo", 300, 300),
+        bannerUrl: picsum("dev-test-store-banner", 1200, 400),
+        images: [
+          picsum("dev-test-store-1", 700, 700),
+          picsum("dev-test-store-2", 700, 700),
+          picsum("dev-test-store-3", 700, 700),
+          picsum("dev-test-store-4", 700, 700),
+        ],
+      },
     },
     { upsert: true, new: true }
   );
   console.log(`Store ready: ${store.slug} (code DEV-TEST / password devtest123 / PIN 1234)`);
+
+  // mm-porto is a real store someone set up by hand (incl. live Stripe Connect
+  // testing) — only ever touch its profile fields here, never upsert/create it
+  // and never touch name/location/credentials.
+  const mmPorto = await Store.findOneAndUpdate(
+    { slug: "mm-porto" },
+    {
+      $set: {
+        tagline: "Three generations of Porto craftsmanship, one small shop by the river.",
+        description:
+          "MIGHTY ARGUMENT LDA started as a single market stall run by our grandmother in the 1970s, selling hand-embroidered linens to visitors passing through the Ribeira. Today we're a small family team carrying on that tradition — cork goods, ceramics, and Portuguese treats, much of it still sourced from the same local makers our grandmother worked with. Come find us in Porto and let us show you around.",
+        logoUrl: picsum("mm-porto-logo", 300, 300),
+        bannerUrl: picsum("mm-porto-banner", 1200, 400),
+        images: [
+          picsum("mm-porto-1", 700, 700),
+          picsum("mm-porto-2", 700, 700),
+          picsum("mm-porto-3", 700, 700),
+          picsum("mm-porto-4", 700, 700),
+          picsum("mm-porto-5", 700, 700),
+        ],
+      },
+    },
+    { new: true }
+  );
+  console.log(
+    mmPorto
+      ? `Store profile updated: ${mmPorto.slug}`
+      : "Store mm-porto not found — skipped (only touches existing stores, never creates one)."
+  );
 
   const categories = [
     { name: "Food & Drink", slug: "food-drink", image: PLACEHOLDER_IMG },
