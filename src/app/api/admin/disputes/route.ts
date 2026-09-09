@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
+import { PLATFORM_LAUNCH_DATE } from "@/lib/platformLaunch";
 import Order from "@/models/Order";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -14,7 +15,11 @@ export async function GET() {
 
   await connectDB();
 
+  // Pre-launch test orders are excluded platform-wide from admin views — see
+  // src/lib/platformLaunch.ts. Note: this can hide a still-open dispute on a
+  // pre-launch order; confirmed acceptable for this platform's test data.
   const orders = await Order.find({
+    createdAt: { $gte: PLATFORM_LAUNCH_DATE },
     $or: [
       { "items.fulfillmentStatus": "issue_reported" },
       {

@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
+import { PLATFORM_LAUNCH_DATE } from "@/lib/platformLaunch";
 import AIResponse from "@/models/AIResponse";
 import Order from "@/models/Order";
 import Transaction from "@/models/Transaction";
@@ -23,7 +24,10 @@ export async function GET() {
       )
         .sort({ createdAt: -1 })
         .lean(),
+      // Per-user activity stats count production activity only — pre-launch
+      // test orders/top-ups/AI plans are excluded. See src/lib/platformLaunch.ts.
       Order.aggregate([
+        { $match: { createdAt: { $gte: PLATFORM_LAUNCH_DATE } } },
         {
           $group: {
             _id: "$userEmail",
@@ -33,6 +37,7 @@ export async function GET() {
         },
       ]),
       Transaction.aggregate([
+        { $match: { createdAt: { $gte: PLATFORM_LAUNCH_DATE } } },
         {
           $group: {
             _id: "$userEmail",
@@ -42,6 +47,7 @@ export async function GET() {
         },
       ]),
       AIResponse.aggregate([
+        { $match: { createdAt: { $gte: PLATFORM_LAUNCH_DATE } } },
         { $group: { _id: "$userEmail", count: { $sum: 1 } } },
       ]),
     ]);

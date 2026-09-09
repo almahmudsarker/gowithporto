@@ -19,7 +19,6 @@ import banner from "@/assets/HERO BG.png";
 import DonutChart from "@/components/admin/DonutChart";
 import Sparkline from "@/components/admin/Sparkline";
 import SalesChart from "@/components/store-owner/SalesChart";
-import { PLATFORM_LAUNCH_DATE } from "@/lib/platformLaunch";
 import { cn } from "@/utils/cn";
 
 type RevenueResponse = {
@@ -153,21 +152,16 @@ export default function AdminDashboardPage() {
       ]);
       if (cancelled) return;
 
-      // Order/revenue stats report on production activity only — pre-launch
-      // test orders (created before PLATFORM_LAUNCH_DATE) are excluded here.
-      // Stores/Users are current-roster counts (active stores, registered
-      // users right now), not historical activity, so they are intentionally
-      // NOT date-filtered — a store or user created before launch that's
-      // still active/registered today should still be counted.
-      const sinceLaunch = <T extends { createdAt: string }>(items: T[]) =>
-        items.filter((i) => new Date(i.createdAt) >= PLATFORM_LAUNCH_DATE);
-
+      // /api/admin/orders already excludes pre-launch test orders — see
+      // src/lib/platformLaunch.ts. Stores/Users are current-roster counts
+      // (active stores, registered users right now), not historical
+      // activity, so they are intentionally NOT date-filtered — a store or
+      // user created before launch that's still active/registered today
+      // should still be counted.
       const [rev, ord, st, us] = results;
       setRevenue(rev.status === "fulfilled" ? rev.value : null);
       setOrders(
-        ord.status === "fulfilled" && Array.isArray(ord.value)
-          ? sinceLaunch(ord.value)
-          : [],
+        ord.status === "fulfilled" && Array.isArray(ord.value) ? ord.value : [],
       );
       setStores(
         st.status === "fulfilled" && Array.isArray(st.value) ? st.value : [],

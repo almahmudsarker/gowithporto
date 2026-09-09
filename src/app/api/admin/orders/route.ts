@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
+import { PLATFORM_LAUNCH_DATE } from "@/lib/platformLaunch";
 import Order from "@/models/Order";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -17,7 +18,9 @@ export async function GET(req: Request) {
 
     await connectDB();
 
-    const query: any = {};
+    // Pre-launch test orders (placed before go-live) are excluded platform-wide
+    // from admin views — see src/lib/platformLaunch.ts.
+    const query: any = { createdAt: { $gte: PLATFORM_LAUNCH_DATE } };
     if (status && status !== "ALL") {
       query.status = status;
     }
