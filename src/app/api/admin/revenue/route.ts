@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
+import { PLATFORM_LAUNCH_DATE } from "@/lib/platformLaunch";
 import Order from "@/models/Order";
 import Store from "@/models/Store";
 import { getServerSession } from "next-auth";
@@ -18,6 +19,9 @@ export async function GET() {
     // status past "paid" (paid/shipped/delivered/completed), matched
     // case-insensitively since store-owner and admin flows both write
     // lowercase statuses ("paid", "shipped").
+    // Pre-launch test orders (manual checkout/Stripe Connect testing done
+    // directly against production before go-live) are excluded so totals
+    // reflect actual production activity — see src/lib/platformLaunch.ts.
     const revenueStatusMatch = {
       $expr: {
         $in: [
@@ -25,6 +29,7 @@ export async function GET() {
           ["paid", "shipped", "delivered", "completed"],
         ],
       },
+      createdAt: { $gte: PLATFORM_LAUNCH_DATE },
     };
 
     // 1. Total Revenue + platform commission vs store payouts
@@ -92,12 +97,14 @@ export async function GET() {
     // derive both the current and previous 30-day windows for MoM deltas)
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+    const dailyStart =
+      sixtyDaysAgo > PLATFORM_LAUNCH_DATE ? sixtyDaysAgo : PLATFORM_LAUNCH_DATE;
 
     const dailyRevenue = await Order.aggregate([
       {
         $match: {
           ...revenueStatusMatch,
-          createdAt: { $gte: sixtyDaysAgo },
+          createdAt: { $gte: dailyStart },
         },
       },
       {
