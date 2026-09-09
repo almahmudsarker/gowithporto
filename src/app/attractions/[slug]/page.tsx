@@ -19,5 +19,5 @@ export default async function AttractionDetailPage({
 
   const attraction = resolveLocalized(raw, lang, ATTRACTION_TRANSLATABLE_FIELDS);
 
-  return <AttractionDetailView attraction={attraction as any} />;
+  return <AttractionDetailView attraction={JSON.parse(JSON.stringify(attraction))} />;
 }

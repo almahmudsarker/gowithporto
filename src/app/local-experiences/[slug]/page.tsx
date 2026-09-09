@@ -22,5 +22,5 @@ export default async function LocalExperienceDetailPage({
 
   const experience = resolveLocalized(raw, lang, LOCAL_EXPERIENCE_TRANSLATABLE_FIELDS);
 
-  return <LocalExperienceDetailView experience={experience as any} />;
+  return <LocalExperienceDetailView experience={JSON.parse(JSON.stringify(experience))} />;
 }
