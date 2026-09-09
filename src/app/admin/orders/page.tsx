@@ -15,6 +15,7 @@ interface OrderItemType {
   quantity: number;
   price: number;
   fulfillmentStatus?: string;
+  confirmedAt?: string;
   transferId?: string;
   transferAmount?: number;
   legalException?: { processedAt?: string };
@@ -42,6 +43,69 @@ const FULFILLMENT_LABELS: Record<string, string> = {
   issue_reported: "Issue Reported",
   resolved: "Resolved",
 };
+
+function getStatusColor(status: string) {
+  switch (status.toUpperCase()) {
+    case "COMPLETED":
+    case "DELIVERED":
+    case "PAID":
+      return "bg-green-100 text-green-700";
+    case "PENDING":
+      return "bg-yellow-100 text-yellow-700";
+    case "CANCELLED":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+}
+
+const HOLD_DAYS = 14;
+const FINAL_FULFILLMENT_STATUSES = ["delivered", "picked_up", "resolved"];
+
+function itemIsFinal(status?: string) {
+  return !!status && FINAL_FULFILLMENT_STATUSES.includes(status);
+}
+
+/** Per-item-fulfillment orders never get their top-level `status` updated by
+ * the dispatch/confirm flow (order.status stays "paid" until the daily
+ * finalize-delivered-orders cron flips it to "shipped" 14 days after
+ * delivery/pickup — see that route's comment). This derives what Admin
+ * should actually show in the meantime, mirroring the Store Owner page's
+ * orderFulfillmentBadge. */
+function deliveryStatus(order: OrderType): { label: string; className: string } {
+  if (!order.paymentIntentId) {
+    return { label: order.status, className: getStatusColor(order.status) };
+  }
+
+  const allFinal = order.items.every((i) => itemIsFinal(i.fulfillmentStatus));
+  if (!allFinal) {
+    return { label: "Processing", className: "bg-blue-100 text-blue-700" };
+  }
+
+  if (order.status === "shipped") {
+    return { label: "Shipped", className: "bg-green-100 text-green-700" };
+  }
+
+  const confirmedTimes = order.items
+    .map((i) => (i.confirmedAt ? new Date(i.confirmedAt).getTime() : 0))
+    .filter((t) => t > 0);
+  const latestConfirmed = confirmedTimes.length ? Math.max(...confirmedTimes) : null;
+  const daysLeft =
+    latestConfirmed !== null
+      ? Math.max(
+          0,
+          HOLD_DAYS - Math.floor((Date.now() - latestConfirmed) / (24 * 60 * 60 * 1000)),
+        )
+      : null;
+
+  const allPickedUp = order.items.every((i) => i.fulfillmentStatus === "picked_up");
+  const label = allPickedUp ? "Picked Up" : "Delivered";
+
+  return {
+    label: daysLeft !== null ? `${label} · ${daysLeft}d left` : label,
+    className: "bg-emerald-100 text-emerald-700",
+  };
+}
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderType[]>([]);
@@ -71,21 +135,6 @@ export default function OrdersPage() {
   useEffect(() => {
     fetchOrders();
   }, [filter]);
-
-  const getStatusColor = (status: string) => {
-    switch (status.toUpperCase()) {
-      case "COMPLETED":
-      case "DELIVERED":
-      case "PAID":
-        return "bg-green-100 text-green-700";
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-700";
-      case "CANCELLED":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -147,6 +196,7 @@ export default function OrdersPage() {
               ) : (
                 orders.map((order) => {
                   const isExpanded = expandedOrderId === order._id;
+                  const status = deliveryStatus(order);
                   return (
                     <Fragment key={order._id}>
                       <tr
@@ -182,8 +232,8 @@ export default function OrdersPage() {
                         </td>
                         <td className="whitespace-nowrap px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getStatusColor(order.status)}`}>
-                              {order.status}
+                            <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${status.className}`}>
+                              {status.label}
                             </span>
                             {order.items.filter((i) => i.fulfillmentStatus === "issue_reported").length > 0 && (
                               <Link

@@ -697,7 +697,7 @@ plus a pull mechanism that is always correct.
 | Outbound webhooks to third parties | **None.** No subscription model, no delivery queue, no signing key issuance |
 | Internal event bus / pub-sub | **None** |
 | Background job queue | **None** |
-| Scheduled jobs / cron | **None** |
+| Scheduled jobs / cron | **Two**, via Vercel Cron (`vercel.json`), both daily at 08:00 UTC, both `Bearer $CRON_SECRET`-authenticated: `GET /api/cron/check-stale-fulfillments` (flags items dispatched 24h+ with no confirmation) and `GET /api/cron/finalize-delivered-orders` (added 2026-09-09 — flips `Order.status` from `"paid"` to `"shipped"` once every item has been delivered/picked-up for 14 days, so Admin's Order Monitoring stops showing "paid" forever on fulfilled orders; does not touch the Stripe transfer, which already fired at confirmation — see `04-DOMAIN` §5.4). Neither is enumerated in the 53/54-route count in §1/§3 below, which predates both — that count needs a fresh audit, not just an increment.|
 
 All coordination is direct function calls inside a request. `PUT .../dispatch` mints the
 token, saves, then `await`s `sendOrderDispatchedForOrder` before responding; the webhook
